@@ -172,9 +172,10 @@ db.once('open', () => {
   console.log('Connected to MongoDB');
 });
 
-// AFTER DONE WITH TESTING, UNCOMMENT THIS, REMOVE server.js & CHANGE THE SCRIPT IN PACKAGE.JSON FROM "nodemon server.js" to "nodemon index.js"
-// app.listen(process.env.PORT, () => {
-//     console.log(`Server started on port No. ${process.env.PORT}`);
-// });
+// IF YOU NEED TO PERFORM TESTS ON ROUTES, COMMENT OUT THE CODE BELOW AND CHANGE THE SCRIPT IN PACKAGE.JSON FROM "nodemon index.js" to "nodemon server.js" 
+// AND VICE VERSA IF YOU DON'T WANT TESTS
+app.listen(process.env.PORT, () => {
+    console.log(`Server started on port No. ${process.env.PORT}`);
+});
 
 module.exports = app;
