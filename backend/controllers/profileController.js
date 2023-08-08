@@ -88,8 +88,8 @@ exports.getOthersProfile = async (req, res, next) => {
                     console.log("error occured while retrieving user: ", err);
                     callback(err);
                 });
-        }, function(user, callback) { // retrieving all posts associated with that user
-            Post.find({author: user._id}).then(posts => callback(null, posts))
+        }, function(user, callback) { // retrieving all posts (from newest to oldest) associated with that user
+            Post.find({author: user._id}).sort({timestamp: -1}).then(posts => callback(null, posts))
                 .catch(err => {
                     console.log("Error occured while retrieving all posts from user: ", err);
                     callback(err);
@@ -121,7 +121,7 @@ exports.getOthersProfile = async (req, res, next) => {
             res.status(500).send("Internal server error");
         } else{
             profile.posts = results;
-            res.status(200).json(profile);
+            res.status(200).json(profile); // this profile variable is from the previously declared variable above
         }
     });
 }

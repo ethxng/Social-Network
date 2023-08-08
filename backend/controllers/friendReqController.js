@@ -11,16 +11,30 @@ exports.send_request = async (req, res, next) => {
             res.status(400).send("Your Receiver's ID is not valid");
             return;
         }
-        let newFriendReq = new FriendRequest({
-            sender: req.user._id, 
-            receiver: receiver_id,
-            status: 'pending'
+
+        // you can't send a FriendReq if:
+        // 1. you already sent this friendReq before (duplicate in the DB)
+        // 2. the receiver has already sent you a FriendReq before you can send him one (Friend Request only goes one way between 2 people)
+        const exists = await FriendRequest.findOne({
+            $or: [
+                { $and: [{ sender: req.user._id }, { receiver: receiver_id }] },
+                { $and: [{ sender: receiver_id }, { receiver: req.user._id }] }
+            ]
         });
-        const result = await newFriendReq.save();
-        if (result !== null){ // if the friendReq is saved successfully
-            res.status(200).send("Success!");
+        if (exists !== null) { // return as duplicate if either condition above is true
+            res.status(409).send("Friend Request already exists");
         } else {
-            throw new Error("error saving friendReq");
+            let newFriendReq = new FriendRequest({
+                sender: req.user._id, 
+                receiver: receiver_id,
+                status: 'pending'
+            });
+            const result = await newFriendReq.save();
+            if (result !== null){ // if the friendReq is saved successfully
+                res.status(200).send("Success!");
+            } else {
+                throw new Error("error saving friendReq");
+            }
         }
     } catch(error) {
         console.error('Error saving the friend request:', error);
@@ -36,8 +50,8 @@ exports.modify_request = async (req, res, next) => {
     // and remove the object in the Friend Request DB
     // if the new status is reject, remove the object in the Friends Request DB
     try {
-        console.log(req.body);
-        if (req.body.status.toLowerCase() === "accepted"){
+        //console.log(req.body);
+        if (req.body.status.toLowerCase() === "accept"){
             // req.user._id is the receiver, req.params.receiver_id is the sender
             const receiver = req.user._id, sender = req.params.receiver_id, friendReqId = req.body.friendReq;
             async.series([
@@ -87,7 +101,7 @@ exports.modify_request = async (req, res, next) => {
                 res.status(500).send("Internal server error");
             });
         }
-        else if (req.body.status.toLowerCase() === "rejected"){
+        else if (req.body.status.toLowerCase() === "reject"){
             FriendRequest.findByIdAndRemove(req.body.friendReq) // remove FriendReq since its status is now rejected
             .then((removedDocument) => {
                 if (removedDocument) { // document removed

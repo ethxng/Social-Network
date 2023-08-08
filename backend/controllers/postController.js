@@ -16,14 +16,24 @@ exports.addLike = async (req, res, next) => {
     try {
         const post_id = req.params.post_id;
         const user_id = req.user._id;
-        let newLike = new Like({
-            post: post_id, 
+        // check to see this Like to this post from this user is already present in the DB
+        const exists = await Like.findOne({
+            post: post_id,
             liked_by: user_id
         });
-    
-        const result = await newLike.save();
-        if (result !== null){ // if the new Like is added to the DB successfully
-            res.status(200).send("Success!");
+
+        if (exists !== null) { // this Like object has already existed
+            res.status(409).send("You have already liked this post");
+        } else {
+            let newLike = new Like({
+                post: post_id, 
+                liked_by: user_id
+            });
+        
+            const result = await newLike.save();
+            if (result !== null){ // if the new Like is added to the DB successfully
+                res.status(200).send("Success!");
+            }
         }
     } catch (error) {
         console.error('Error saving like:', error);
@@ -34,21 +44,18 @@ exports.addLike = async (req, res, next) => {
 // remove a like to a post
 exports.removeLike = async (req, res, next) => {
     try {
-        const like_id = req.params.like_id;
-        Like.findByIdAndDelete(like_id)
-            .then(removedDocument => {
-                if (removedDocument !== null){
-                    res.status(200).send("Success!");
-                } else{
-                    res.status(404).send("Document not found!");
-                }
-            })
-            .catch(err => {
-                console.error("Error deleting a like: ", err);
-                res.status(500).send("Internal server error");
-            });
-    } catch (err) {
-        console.error("Error deleting a like: ", err);
+        const post_id = req.params.post_id;
+        const deletion = await Like.findOneAndDelete({
+            post: post_id,
+            liked_by: req.user._id
+        });
+        if (deletion !== null) {
+            res.status(200).send("Success!");
+        } else {
+            res.status(404).send("Post not found!");
+        }
+    } catch (error) {
+        console.log("Error deleting a Like: ", error);
         res.status(500).send("Internal server error");
     }
 }
@@ -71,7 +78,7 @@ exports.addComment = async (req, res, next) => {
         }
     } catch(error){
         console.error('Error saving comment:', error);
-        res.status(500).send("Internal server error!");
+        res.status(500).send("Internal server error! You cannot make a comment at this point.");
     }
 }
 
@@ -108,7 +115,7 @@ exports.getPost = async (req, res, next) => {
         },
         // get all comments associated with that post, populate commenter so you know who said what
         getComments: function(callback){ 
-            Comment.find({"post": post_id}).populate({path: "commenter", select: "username"})
+            Comment.find({"post": post_id}).populate({path: "commenter", select: "username"}).select("-post")
                     .then(comments => callback(null, comments))
                     .catch(err => {
                         console.error("error finding all comments: ", err);
@@ -147,7 +154,7 @@ exports.getIndexPage = async (req, res, next) => {
                 // console.log("Friends ID: ");
                 // console.log(friendIds);
 
-                Post.find({"author": {$in: friendIds}}).populate({path: 'author', select: "username"})
+                Post.find({"author": {$in: friendIds}}).populate({path: 'author', select: "username"}).sort({"timestamp": -1})
                     .then(posts => callback(null, posts))
                     .catch(err => {
                         console.error("error finding all posts of a friend: ", err);
