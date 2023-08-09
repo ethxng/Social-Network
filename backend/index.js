@@ -138,20 +138,6 @@ app.get("/welcome", (req, res, next) => {
   // this only shows up when the user is not logged in
   res.send("Welcome to the Social Network App! Please log in.")
 });
-
-
-app.get("/hi", ensureAuthenticated, (req, res, next) => {
-  User.findOne({username: "guest_user", password: "p&DLk@94p08V"}).then((user) => {
-    res.send(user);
-  }).catch((err) => {
-    console.log(err);
-  })
-});
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-    next(createError(404));
-  });
   
 // error handler
 app.use(function(err, req, res, next) {

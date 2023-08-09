@@ -41,8 +41,6 @@ describe("POST /guest-sign-in", () => {
         
         expect(response.status).toBe(302);
         expect(response.header['location']).toBe('/success');
-        //expect(response.req.user).toBeDefined();
-        //console.log(response);
         
     }, 10000);
 });

@@ -15,7 +15,7 @@ let postController = require('../controllers/postController');
 router.post('/:post_id/addLike', ensureAuthenticated, postController.addLike); 
 
 // remove a like to a post
-router.delete('/removeLike/:like_id', ensureAuthenticated, postController.removeLike);
+router.delete('/:post_id/removeLike', ensureAuthenticated, postController.removeLike);
 
 // add comment to a post
 router.post('/:post_id/addComment', ensureAuthenticated, postController.addComment);
@@ -67,10 +67,5 @@ router.get('/image/:key', ensureAuthenticated, postController.getImage);
 
 // create a post (can be text-only or have one picture attached)
 router.post("/create", ensureAuthenticated, postController.createPost);
-
-// function ensureAuthenticated(req, res, next){
-//     if (req.isAuthenticated()) { return next(); }
-//     res.redirect('/error');
-// }
 
 module.exports = router;

@@ -28,15 +28,7 @@ async function logIn(user) {
 describe("POST /post/:post_id/addLike", () => {
     test("with given post_id, should add a like from signed in user to that post", async () => {
         // all routes need to be logged in first before you can access it 
-        // TODO: continue with this route, but look into request.agent and setting cookie in the addLike route so it knows who you are
         const user = { username: 'LeGoat2', password: 'jjames06' };
-        
-        // const loginRes = await request(app)
-        //     .post('/auth/sign-in')
-        //     .send(user);
-        
-        // expect(loginRes.status).toBe(302);
-        // expect(loginRes.header['location']).toBe('/success');
 
         const loginRes = await logIn(user);
 

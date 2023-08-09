@@ -18,9 +18,4 @@ router.get('/', ensureAuthenticated, friendReqController.getAllFriendReqs);
 // suggesting new friends to a user
 router.get('/newFriends', ensureAuthenticated, friendReqController.getNewFriends);
 
-// function ensureAuthenticated(req, res, next){
-//     if (req.isAuthenticated()) { return next(); }
-//     res.redirect('/error');
-// }
-
 module.exports = router;

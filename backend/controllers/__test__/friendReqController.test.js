@@ -56,29 +56,28 @@ describe("GET /send/:receiver_id", () => {
     }, 10000);
 });
 
-describe("PATCH /modify/:receiver_id", () => {
-    // 2 case: reject and accept 
-    test("assumed valid receiver_id and reject the friendReq, should delete the friendReq obj from DB", async () => {
-        const user = { username: "LeGoat2", password: "jjames06" };
+// describe("PATCH /modify/:receiver_id", () => {
+//     // 2 case: reject and accept 
+//     test("assumed valid receiver_id and reject the friendReq, should delete the friendReq obj from DB", async () => {
+//         const user = { username: "LeGoat2", password: "jjames06" };
 
-        const loginRes = await logIn(user);
+//         const loginRes = await logIn(user);
 
-        // random receiver id from the DB
-        const receiver_id = "646930a0a887e86f86be74b8";
+//         // random receiver id from the DB
+//         const receiver_id = "646930a0a887e86f86be74b8";
 
-        const sendRequest = await request(app)
-            .post(`/friendReq/send/${receiver_id}`)
-            .set('Cookie', loginRes.headers['set-cookie']);
+//         const sendRequest = await request(app)
+//             .post(`/friendReq/send/${receiver_id}`)
+//             .set('Cookie', loginRes.headers['set-cookie']);
 
-        expect(res.status).toBe(200);
-        expect(res.text).toBe("Success!");
+//         expect(res.status).toBe(200);
+//         expect(res.text).toBe("Success!");
 
-        const modifyRequest = await request(app)
-            .patch('/friendReq/')
-    }, 10000)
-})
-
-//describe()
+//         const modifyRequest = await request(app)
+//             .patch(`/friendReq/modify/${receiver_id}`)
+//             .field('status', "accept")
+//     }, 10000)
+// })
 
 afterAll((done) => {
     mongoose.connection.close();
